@@ -151,8 +151,13 @@ namespace Bipolar.SpritesetAnimation
 
 		public void RefreshSprite()
 		{
+			RefreshSprite(currentAnimationIndex, CurrentFrameIndex);
+		}
+
+		public void RefreshSprite(int animationIndex, int frameIndex)
+		{
 			if (spriteRenderer && spriteset)
-				spriteRenderer.sprite = spriteset[currentAnimationIndex][CurrentFrameIndex];
+				spriteRenderer.sprite = spriteset[animationIndex][frameIndex];
 		}
 
 		private void ValidateAnimationIndex()
@@ -178,8 +183,13 @@ namespace Bipolar.SpritesetAnimation
 		public void PlayAnimationOnce(int animationIndex, float speed, System.Action onFinished = null)
 		{
 			isAnimating = false;
-			StopAllCoroutines();
+			StopPlayingOnce();
 			StartCoroutine(PlayAnimationOnceCo(animationIndex, onFinished, speed));
+		}
+
+		public void StopPlayingOnce()
+		{
+			StopAllCoroutines();
 		}
 
 		private IEnumerator PlayAnimationOnceCo(int animationIndex, System.Action onFinished, float speed)
@@ -188,13 +198,13 @@ namespace Bipolar.SpritesetAnimation
 			int sequenceLength = GetSequenceLength(animationIndex);
 			baseFrameIndex = isReversed ? sequenceLength - 1 : 0;
 			int endingFrameIndex = isReversed ? 0 : sequenceLength - 1;
-			RefreshSprite();
+			RefreshSprite(animationIndex, CurrentFrameIndex);
 			while (true)
 			{
 				yield return wait;
 				int indexChange = isReversed ? -1 : 1;
 				baseFrameIndex += indexChange;
-				RefreshSprite();
+				RefreshSprite(animationIndex, CurrentFrameIndex);
 				if (baseFrameIndex == endingFrameIndex)
 					break;
 			}

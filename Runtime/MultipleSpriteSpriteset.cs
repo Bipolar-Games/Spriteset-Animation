@@ -1,61 +1,44 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Bipolar.SpritesetAnimation
 {
-    [CreateAssetMenu(menuName = CreateAssetPath.Root + "Multiple Sprite Spriteset")]
+	[CreateAssetMenu(menuName = CreateAssetPath.Root + "Multiple Sprite Spriteset")]
     public class MultipleSpriteSpriteset : Spriteset
     {
-        [SerializeField]
-        private SpritesetRow[] sprites;
-		private Dictionary<string, SpritesetRow> rowsByName;
+        [SerializeField, FormerlySerializedAs("sprites")]
+        private SpritesetRow[] animations;
+		private Dictionary<string, int> rowIndicesByName;
 
-        public override IReadOnlyList<Sprite> this[int index] => sprites[index];
+        public override IReadOnlyList<Sprite> this[int index] => animations[index];
 
 		public IReadOnlyList<Sprite> this[string name]
 		{
 			get
 			{
-				if (rowsByName == null)
-					CreateDictionary();
-
-				return rowsByName.TryGetValue(name, out var row) ? row : null;
+				int index = GetRowIndex(name);
+				return index >= 0 ? animations[index] : null;
 			}
 		}
 
 		private void CreateDictionary()
 		{
-			rowsByName = new Dictionary<string, SpritesetRow>();
-			foreach (var row in sprites) 
-				rowsByName.Add(row.Name, row);
+			rowIndicesByName = new Dictionary<string, int>();
+			for (int i = 0; i < animations.Length; i++)
+				rowIndicesByName.Add(animations[i].Name, i);
 		}
 
-		public override int RowCount => sprites.Length;
-
-		public override int GetFramesCount(int rowIndex) => sprites[rowIndex].Count;
-	}
-
-    [System.Serializable]
-	public class SpritesetRow : IReadOnlyList<Sprite>
-    {
-		[SerializeField]
-		private string name;
-		public string Name => name;
-
-        [SerializeField]
-        private Sprite[] sprites;
-
-		public Sprite this[int index] => sprites[index];
-
-		public int Count => sprites.Length;
-
-		public IEnumerator<Sprite> GetEnumerator()
+		public int GetRowIndex(string name)
 		{
-			foreach (var sprite in sprites) 
-				yield return sprite;
+			if (rowIndicesByName == null)
+				CreateDictionary();
+
+			return rowIndicesByName.TryGetValue(name, out int index) ? index : -1;
 		}
 
-		IEnumerator IEnumerable.GetEnumerator() => sprites.GetEnumerator();
+		public override int RowCount => animations.Length;
+
+		public override int GetFramesCount(int rowIndex) => animations[rowIndex].Count;
 	}
 }

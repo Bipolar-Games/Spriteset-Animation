@@ -13,12 +13,12 @@ namespace Bipolar.SpritesetAnimation.Editor
     [CustomEditor(typeof(MultipleSpriteSpriteset))]
     public class MultipleSpriteSpritesetEditor : UnityEditor.Editor
     {
-        private const string SpritesPropertyName = "sprites";
+        private const string AnimationsPropertyName = "animations";
 
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            var spritesProperty = serializedObject.FindProperty(SpritesPropertyName);
+            var spritesProperty = serializedObject.FindProperty(AnimationsPropertyName);
 
             var columnsProperty = serializedObject.FindProperty(SpritesetEditorUtility.ColumnCountPropertyName);
             int columnCount = columnsProperty?.intValue ?? 1;
@@ -66,7 +66,7 @@ namespace Bipolar.SpritesetAnimation.Editor
             if (previewStartTime == 0)
                 previewStartTime = (int)EditorApplication.timeSinceStartup;
 
-            var spritesProperty = serializedObject.FindProperty(SpritesPropertyName);
+            var spritesProperty = serializedObject.FindProperty(AnimationsPropertyName);
             int spritesCount = spritesProperty.arraySize;
             int frameIndex = ((int)EditorApplication.timeSinceStartup - previewStartTime) % spritesCount;
             if (previewFrameIndex != frameIndex)

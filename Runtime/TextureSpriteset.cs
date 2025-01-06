@@ -80,7 +80,12 @@ namespace Bipolar.SpritesetAnimation
             }
         }
 
-        private void OnValidate()
+		public override int GetFramesCount(int rowIndex)
+		{
+			throw new System.NotImplementedException();
+		}
+
+		private void OnValidate()
         {
             CreateSpritesArray();
 #if UNITY_EDITOR
@@ -95,11 +100,7 @@ namespace Bipolar.SpritesetAnimation
             if (change == UnityEditor.PlayModeStateChange.EnteredPlayMode || change == UnityEditor.PlayModeStateChange.EnteredEditMode)
                 CreateSpritesArray();
         }
-
-		public override int GetFramesCount(int rowIndex)
-		{
-			throw new System.NotImplementedException();
-		}
 #endif
+
 	}
 }
