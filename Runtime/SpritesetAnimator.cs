@@ -60,8 +60,14 @@ namespace Bipolar.SpritesetAnimation
 			}
 		}
 
+		public string CurrentAnimationName
+		{
+			get => spriteset.GetRowName(currentAnimationIndex);
+			set => CurrentAnimationIndex = spriteset.GetRowIndex(value);
+		}
+
 		[SerializeField]
-		[Tooltip("By default sequence has length (number of frames) equal to spriteset columns count. If this value is positive, it will be taken as animation sequence lenght instead.")]
+		[Tooltip("By default sequence has length (number of frames) equal to spriteset columns count. If this value is positive, it will be taken as animation sequence length instead.")]
 		private int overrideSequenceLength;
 		public int OverrideSequenceLength
 		{
@@ -196,18 +202,15 @@ namespace Bipolar.SpritesetAnimation
 		{
 			var wait = new WaitForSeconds(1f / speed);
 			int sequenceLength = GetSequenceLength(animationIndex);
-			baseFrameIndex = isReversed ? sequenceLength - 1 : 0;
 			int endingFrameIndex = isReversed ? 0 : sequenceLength - 1;
-			RefreshSprite(animationIndex, CurrentFrameIndex);
-			while (true)
+			int indexChange = isReversed ? -1 : 1;
+			
+			for (baseFrameIndex = isReversed ? sequenceLength - 1 : 0; baseFrameIndex != endingFrameIndex; baseFrameIndex += indexChange)
 			{
-				yield return wait;
-				int indexChange = isReversed ? -1 : 1;
-				baseFrameIndex += indexChange;
 				RefreshSprite(animationIndex, CurrentFrameIndex);
-				if (baseFrameIndex == endingFrameIndex)
-					break;
+				yield return wait;
 			}
+			RefreshSprite(animationIndex, endingFrameIndex);
 			onFinished?.Invoke();
 		}
 

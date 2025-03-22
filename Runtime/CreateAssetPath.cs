@@ -1,7 +1,7 @@
 ﻿namespace Bipolar.SpritesetAnimation
 {
-    public static class CreateAssetPath
+    internal static class CreateAssetPath
     {
-        public const string Root = "Spriteset/";
+        public const string Root = "Bipolar/Spriteset Animation/";
     }
 }

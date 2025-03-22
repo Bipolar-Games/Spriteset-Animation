@@ -4,14 +4,8 @@ using UnityEngine;
 
 namespace Bipolar.SpritesetAnimation.Editor
 {
-    public static class SpritesetEditorUtility
-    {
-        public const string ColumnCountPropertyName = "columnCount";
-
-    }
-
-    [CustomEditor(typeof(MultipleSpriteSpriteset))]
-    public class MultipleSpriteSpritesetEditor : UnityEditor.Editor
+    [CustomEditor(typeof(Spriteset))]
+    public class SpritesetEditor : UnityEditor.Editor
     {
         private const string AnimationsPropertyName = "animations";
 
@@ -20,8 +14,6 @@ namespace Bipolar.SpritesetAnimation.Editor
             base.OnInspectorGUI();
             var spritesProperty = serializedObject.FindProperty(AnimationsPropertyName);
 
-            var columnsProperty = serializedObject.FindProperty(SpritesetEditorUtility.ColumnCountPropertyName);
-            int columnCount = columnsProperty?.intValue ?? 1;
             int spritesCount = spritesProperty.arraySize;
 
             EditorGUILayout.Space(EditorGUIUtility.singleLineHeight);
@@ -30,7 +22,6 @@ namespace Bipolar.SpritesetAnimation.Editor
                 serializedObject.ApplyModifiedProperties();
             
         }
-
 
         public static bool DrawSpritesGrid(int columnCount, int spritesCount, Func<int, SerializedProperty> getSpriteFunc)
         {
@@ -68,6 +59,9 @@ namespace Bipolar.SpritesetAnimation.Editor
 
             var spritesProperty = serializedObject.FindProperty(AnimationsPropertyName);
             int spritesCount = spritesProperty.arraySize;
+            if (spritesCount == 0)
+				return;
+
             int frameIndex = ((int)EditorApplication.timeSinceStartup - previewStartTime) % spritesCount;
             if (previewFrameIndex != frameIndex)
             {

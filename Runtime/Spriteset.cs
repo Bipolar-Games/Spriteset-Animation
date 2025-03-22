@@ -3,12 +3,43 @@ using UnityEngine;
 
 namespace Bipolar.SpritesetAnimation
 {
-    public abstract class Spriteset : ScriptableObject
+	[CreateAssetMenu(menuName = CreateAssetPath.Root + "Spriteset")]
+    public class Spriteset : ScriptableObject
     {
-        public abstract int RowCount { get; }
+        [SerializeField]
+        private SpritesetRow[] animations;
+		private Dictionary<string, int> rowIndicesByName;
 
-        public abstract IReadOnlyList<Sprite> this[int rowIndex] { get; }
+        public IReadOnlyList<Sprite> this[int index] => animations[index];
 
-        public abstract int GetFramesCount(int rowIndex);
-    }
+		public IReadOnlyList<Sprite> this[string name]
+		{
+			get
+			{
+				int index = GetRowIndex(name);
+				return index >= 0 ? animations[index] : null;
+			}
+		}
+
+		private void CreateDictionary()
+		{
+			rowIndicesByName = new Dictionary<string, int>();
+			for (int i = 0; i < animations.Length; i++)
+				rowIndicesByName.Add(animations[i].Name, i);
+		}
+
+		public int GetRowIndex(string name)
+		{
+			if (rowIndicesByName == null)
+				CreateDictionary();
+
+			return rowIndicesByName.TryGetValue(name, out int index) ? index : -1;
+		}
+
+		public string GetRowName(int index) => animations[index].Name;
+
+		public int RowCount => animations.Length;
+
+		public int GetFramesCount(int rowIndex) => animations[rowIndex].Count;
+	}
 }
