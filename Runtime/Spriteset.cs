@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Bipolar.SpritesetAnimation
 {
-	[CreateAssetMenu(menuName = CreateAssetPath.Root + "Spriteset")]
+	[CreateAssetMenu(menuName = Paths.Root + "Spriteset")]
     public class Spriteset : ScriptableObject
     {
         [SerializeField]
