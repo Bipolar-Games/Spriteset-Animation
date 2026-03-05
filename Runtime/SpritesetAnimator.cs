@@ -46,7 +46,7 @@ namespace Bipolar.SpritesetAnimation
 		[SerializeField]
 		[Tooltip("Current row in spriteset from which frames are taken.")]
 		private int currentAnimationIndex;
-		public int CurrentAnimationIndex
+		public int AnimationIndex
 		{
 			get => currentAnimationIndex;
 			set
@@ -63,11 +63,11 @@ namespace Bipolar.SpritesetAnimation
 		public string CurrentAnimationName
 		{
 			get => spriteset.GetRowName(currentAnimationIndex);
-			set => CurrentAnimationIndex = spriteset.GetRowIndex(value);
+			set => AnimationIndex = spriteset.GetRowIndex(value);
 		}
 
 		[SerializeField]
-		[Tooltip("By default sequence has length (number of frames) equal to spriteset columns count. If this value is positive, it will be taken as animation sequence length instead.")]
+		[Tooltip("By default sequence has length (number of frames) equal to sprites count in row. If this value is positive, it will be taken as animation sequence length instead.")]
 		private int overrideSequenceLength;
 		public int OverrideSequenceLength
 		{
@@ -76,7 +76,7 @@ namespace Bipolar.SpritesetAnimation
 		}
 
 		[SerializeField]
-		[Tooltip("By default sprite in column zero is treated as starting animation frame. Use this field to modify this value.")]
+		[Tooltip("By default sprite at index zero is treated as starting animation frame. Use this field to modify this value.")]
 		private int frameIndexOffset;
 		public int FrameIndexOffset
 		{
@@ -217,7 +217,7 @@ namespace Bipolar.SpritesetAnimation
 		private void OnValidate()
 		{
 			ValidateAnimationIndex();
-			RefreshSprite();
-		}
+            RefreshSprite(currentAnimationIndex, CurrentFrameIndex % spriteset[AnimationIndex].Count);
+        }
 	}
 }

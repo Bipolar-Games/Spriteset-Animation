@@ -14,9 +14,15 @@ namespace Bipolar.SpritesetAnimation
         [SerializeField]
         private Sprite[] sprites;
 
-		public Sprite this[int index] => sprites[index];
+        public Sprite this[int index]
+        {
+            get
+            {
+                return sprites[index];
+            }
+        }
 
-		public int Count => sprites.Length;
+        public int Count => sprites.Length;
 
 		public IEnumerator<Sprite> GetEnumerator()
 		{
