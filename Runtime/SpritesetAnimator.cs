@@ -25,6 +25,17 @@ namespace Bipolar.SpritesetAnimation
 		}
 
 		[Header("Properties")]
+		[SerializeField]
+		private bool isAnimating = true;
+		public bool IsAnimating
+		{
+			get => isAnimating;
+			set
+			{
+				isAnimating = value;
+			}
+		}
+
 		[SerializeField, Min(0)]
 		[Tooltip("Speed of animation [in Frames per Second].")]
 		private float animationSpeed = IdleAnimationSpeed;
@@ -94,17 +105,6 @@ namespace Bipolar.SpritesetAnimation
 			{
 				baseFrameIndex = value;
 				RefreshSprite();
-			}
-		}
-
-		[SerializeField]
-		private bool isAnimating = true;
-		public bool IsAnimating
-		{
-			get => isAnimating;
-			set
-			{
-				isAnimating = value;
 			}
 		}
 
