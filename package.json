@@ -1,0 +1,25 @@
+{
+    "name": "com.bipolar.spritesheet-animation",
+    "version": "1.1.0",
+    "displayName": "Bipolar Spritesheet Animation",
+    "description": "Package for animating sprites frame-by-frame",
+    "unity": "2020.3",
+    "author": {
+        "name": "Kosmik123",
+        "email": "malpa.w.klapkach@gmail.com",
+        "url": "https://github.com/Kosmik123"
+    },
+    "keywords": [
+        "unity",
+        "2d",
+        "animation",
+        "spritesheet",
+        "sprite",
+        "frame-animation",
+        "frame-by-frame",
+        "flipbook",
+        "2d-animation",
+        "animator"
+    ],
+    "license": "MIT"
+}
