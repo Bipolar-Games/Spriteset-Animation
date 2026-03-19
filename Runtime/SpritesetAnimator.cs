@@ -78,7 +78,9 @@ namespace Bipolar.SpritesetAnimation
 		}
 
 		[SerializeField]
-		[Tooltip("By default sequence has length (number of frames) equal to sprites count in row. If this value is positive, it will be taken as animation sequence length instead.")]
+		[Tooltip("By default sequence has length (number of frames) equal to sprites count in row. " +
+			"If this value is positive, it will be taken as animation sequence length instead. " +
+            "If this value is negative, sequence length will be lowered by that amount (min 1).")]
 		private int overrideSequenceLength;
 		public int OverrideSequenceLength
 		{
@@ -110,18 +112,22 @@ namespace Bipolar.SpritesetAnimation
 
 		public int CurrentFrameIndex => baseFrameIndex + frameIndexOffset;
 
-		public int CurrentSequenceLength => GetSequenceLength(currentAnimationIndex);
+        public int GetCurrentSequenceLength() => GetSequenceLength(currentAnimationIndex);
 
-		private int GetSequenceLength(int animationIndex)
-		{
-			int columnsCount = spriteset.GetFramesCount(animationIndex);
-			if (overrideSequenceLength <= 0)
-				return columnsCount;
+        private int GetSequenceLength(int animationIndex)
+        {
+            int sequenceLength = spriteset.GetFramesCount(animationIndex);
+            
+			if (overrideSequenceLength > 0)
+                sequenceLength = Mathf.Min(overrideSequenceLength, sequenceLength);
+			else if (overrideSequenceLength < 0)
+				sequenceLength += overrideSequenceLength;
 
-			return Mathf.Min(overrideSequenceLength, columnsCount);
-		}
+			sequenceLength -= frameIndexOffset;
+			return Mathf.Max(1, sequenceLength);
+        }
 
-		public int RowCount => spriteset ? spriteset.RowCount : 0;
+        public int RowCount => spriteset ? spriteset.RowCount : 0;
 
 #if NAUGHTY_ATTRIBUTES
 		[NaughtyAttributes.ShowNonSerializedField]
@@ -135,27 +141,29 @@ namespace Bipolar.SpritesetAnimation
 
 		private void Start()
 		{
-			currentAnimationIndex = 0;
 			animationTimer = 0;
 		}
 
 		private void Update()
-		{
-			if (isAnimating == false)
-				return;
+        {
+            if (isAnimating)
+                Animate(Time.deltaTime);
+        }
 
-			animationTimer += Time.deltaTime * animationSpeed;
-			if (animationTimer > 1)
-			{
-				animationTimer -= 1;
-				int sequenceLength = CurrentSequenceLength;
-				int indexChange = isReversed ? -1 : 1;
-				baseFrameIndex = (baseFrameIndex + indexChange + sequenceLength) % sequenceLength;
-				RefreshSprite();
-			}
-		}
+		private void Animate(float timeDelta)
+        {
+            animationTimer += timeDelta * animationSpeed;
+            if (animationTimer > 1)
+            {
+                animationTimer -= 1;
+                int sequenceLength = GetCurrentSequenceLength();
+                int indexChange = isReversed ? -1 : 1;
+                baseFrameIndex = (baseFrameIndex + indexChange + sequenceLength) % sequenceLength;
+                RefreshSprite();
+            }
+        }
 
-		public void RefreshSprite()
+        public void RefreshSprite()
 		{
 			RefreshSprite(currentAnimationIndex, CurrentFrameIndex);
 		}
@@ -203,9 +211,10 @@ namespace Bipolar.SpritesetAnimation
 			var wait = new WaitForSeconds(1f / speed);
 			int sequenceLength = GetSequenceLength(animationIndex);
 			int endingFrameIndex = isReversed ? 0 : sequenceLength - 1;
-			int indexChange = isReversed ? -1 : 1;
+			int startFrameIndex = isReversed ? sequenceLength - 1 : 0;
+            int indexChange = isReversed ? -1 : 1;
 			
-			for (baseFrameIndex = isReversed ? sequenceLength - 1 : 0; baseFrameIndex != endingFrameIndex; baseFrameIndex += indexChange)
+			for (baseFrameIndex = startFrameIndex; baseFrameIndex != endingFrameIndex; baseFrameIndex += indexChange)
 			{
 				RefreshSprite(animationIndex, CurrentFrameIndex);
 				yield return wait;
