@@ -217,7 +217,10 @@ namespace Bipolar.SpritesetAnimation
 		private void OnValidate()
 		{
 			ValidateAnimationIndex();
-            RefreshSprite(currentAnimationIndex, CurrentFrameIndex % spriteset[AnimationIndex].Count);
-        }
+			if (spriteset)
+			{
+				RefreshSprite(currentAnimationIndex, CurrentFrameIndex % spriteset[AnimationIndex].Count);
+			}
+		}
 	}
 }

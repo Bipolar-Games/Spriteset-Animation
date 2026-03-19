@@ -7,7 +7,7 @@ namespace Bipolar.SpritesetAnimation
     public class Spriteset : ScriptableObject
     {
         [SerializeField]
-        private SpritesetRow[] animations;
+        internal SpritesetRow[] animations;
 		private Dictionary<string, int> rowIndicesByName;
 
         public IReadOnlyList<Sprite> this[int index] => animations[index];

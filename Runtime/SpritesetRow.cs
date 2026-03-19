@@ -8,11 +8,11 @@ namespace Bipolar.SpritesetAnimation
 	public class SpritesetRow : IReadOnlyList<Sprite>
     {
 		[SerializeField]
-		private string name;
+		internal string name;
 		public string Name => name;
 
         [SerializeField]
-        private Sprite[] sprites;
+        internal Sprite[] sprites;
 
         public Sprite this[int index]
         {
