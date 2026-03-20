@@ -47,27 +47,52 @@ namespace Bipolar.SpritesetAnimation.Editor
             return hasChanged;
         }
 
-        public override bool HasPreviewGUI() => true;
+        public override bool HasPreviewGUI() => false;
 
         private int previewStartTime;
         private int previewFrameIndex;
         private Texture2D previewTexture;
+
         public override void OnInteractivePreviewGUI(Rect previewRect, GUIStyle background)
         {
             if (previewStartTime == 0)
                 previewStartTime = (int)EditorApplication.timeSinceStartup;
 
-            var spritesProperty = serializedObject.FindProperty(AnimationsPropertyName);
-            int spritesCount = spritesProperty.arraySize;
-            if (spritesCount == 0)
-				return;
+            var spriteRowsArrayProperty = serializedObject.FindProperty(AnimationsPropertyName);
+            int spriteRowsCount = spriteRowsArrayProperty.arraySize;
+            int totalFrameCount = 0;
+            for (int i = 0; i < spriteRowsCount; i++)
+            {
+                var row = spriteRowsArrayProperty.GetArrayElementAtIndex(i);
+                var sprites = row.FindPropertyRelative("sprites");
+                totalFrameCount += sprites.arraySize;
+            }
 
-            int frameIndex = ((int)EditorApplication.timeSinceStartup - previewStartTime) % spritesCount;
+            if (totalFrameCount <= 0)
+                return;
+
+            int frameIndex = ((int)EditorApplication.timeSinceStartup - previewStartTime) % totalFrameCount;
             if (previewFrameIndex != frameIndex)
             {
                 previewFrameIndex = frameIndex;
-                var sprite = (Sprite)spritesProperty.GetArrayElementAtIndex(previewFrameIndex).objectReferenceValue;
-                previewTexture = AssetPreview.GetAssetPreview(sprite);
+                int startFrame = 0;
+                for (int i = 0; i < spriteRowsCount; i++)
+                {
+                    var row = spriteRowsArrayProperty.GetArrayElementAtIndex(i);
+                    var sprites = row.FindPropertyRelative("sprites");
+                    if (previewFrameIndex < startFrame + sprites.arraySize)
+                    {
+                        int spriteIndex = previewFrameIndex - startFrame;
+                        if (sprites.GetArrayElementAtIndex(spriteIndex)?.objectReferenceValue is Sprite sprite)
+                        {
+                            previewTexture = AssetPreview.GetAssetPreview(sprite.texture);
+                        }
+                        
+                        break;
+                    }
+                    startFrame += sprites.arraySize;
+                }
+
             }
 
             if (previewTexture)
