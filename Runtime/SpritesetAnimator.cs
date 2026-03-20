@@ -106,11 +106,18 @@ namespace Bipolar.SpritesetAnimation
 			}
 		}
 
+        private SpriteRenderer spriteRenderer;
+        public SpriteRenderer SpriteRenderer
+        {
+            get
+            {
+                if (spriteRenderer == null)
+                    spriteRenderer = GetComponent<SpriteRenderer>();
+                return spriteRenderer;
+            }
+        }
 
-		private SpriteRenderer spriteRenderer;
-		public SpriteRenderer SpriteRenderer => spriteRenderer;
-
-		public int CurrentFrameIndex => baseFrameIndex + frameIndexOffset;
+        public int CurrentFrameIndex => baseFrameIndex + frameIndexOffset;
 
 		public int GetCurrentSequenceLength() => GetSequenceLength(currentAnimationIndex);
 
@@ -134,13 +141,18 @@ namespace Bipolar.SpritesetAnimation
 #endif
 		private float animationTimer;
 
-		private void Awake()
+		private void Reset()
 		{
 			spriteRenderer = GetComponent<SpriteRenderer>();
 			animationTimer = 0;
 		}
 
-		private void Update()
+        private void Awake()
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+
+        private void Update()
 		{
 			if (isAnimating)
 				Animate(Time.deltaTime);
@@ -166,8 +178,8 @@ namespace Bipolar.SpritesetAnimation
 
 		public void RefreshSprite(int animationIndex, int frameIndex)
 		{
-			if (spriteRenderer && spriteset)
-				spriteRenderer.sprite = spriteset[animationIndex][frameIndex];
+			if (spriteset)
+                SpriteRenderer.sprite = spriteset[animationIndex][frameIndex];
 		}
 
 		private void ValidateAnimationIndex()
@@ -175,26 +187,11 @@ namespace Bipolar.SpritesetAnimation
 			currentAnimationIndex = Mathf.Clamp(currentAnimationIndex, 0, RowCount - 1);
 		}
 
-		public void PlayAnimationOnce(System.Action onFinished = null)
-		{
-			PlayAnimationOnce(currentAnimationIndex, animationSpeed, onFinished);
-		}
-
-		public void PlayAnimationOnce(int animationIndex, System.Action onFinished = null)
-		{
-			PlayAnimationOnce(animationIndex, animationSpeed, onFinished);
-		}
-
-		public void PlayAnimationOnce(System.Action onFinished, float speed)
-		{
-			PlayAnimationOnce(currentAnimationIndex, speed, onFinished);
-		}
-
-		public void PlayAnimationOnce(int animationIndex, float speed, System.Action onFinished = null)
+		public void PlayAnimationOnce(PlayAnimationOnceParams animationParams = default, System.Action onFinished = null)
 		{
 			isAnimating = false;
 			StopPlayingOnce();
-			StartCoroutine(PlayAnimationOnceCo(animationIndex, onFinished, speed));
+			StartCoroutine(PlayAnimationOnceCo(animationParams, onFinished));
 		}
 
 		public void StopPlayingOnce()
@@ -202,8 +199,13 @@ namespace Bipolar.SpritesetAnimation
 			StopAllCoroutines();
 		}
 
-		private IEnumerator PlayAnimationOnceCo(int animationIndex, System.Action onFinished, float speed)
+		private IEnumerator PlayAnimationOnceCo(PlayAnimationOnceParams animationParams, System.Action onFinished)
 		{
+			float speed = animationParams.HasSpeed ? animationParams.Speed : animationSpeed;
+			int animationIndex = animationParams.HasAnimationIndex ? animationParams.AnimationIndex : currentAnimationIndex;
+			bool isReversed = animationParams.HasIsReversed ? animationParams.IsReversed : this.isReversed;
+
+
 			var wait = new WaitForSeconds(1f / speed);
 			int sequenceLength = GetSequenceLength(animationIndex);
 			int endingFrameIndex = isReversed ? 0 : sequenceLength - 1;
@@ -237,6 +239,7 @@ namespace Bipolar.SpritesetAnimation
             readonly get => animationIndex.Value; 
 			set => animationIndex.Value = value;
         }
+		public readonly bool HasAnimationIndex => animationIndex.IsSpecified;
 
 		private Param<float> speed;
 		public float Speed
@@ -244,8 +247,23 @@ namespace Bipolar.SpritesetAnimation
             readonly get => speed.Value; 
 			set => speed.Value = value;
         }
+		public readonly bool HasSpeed => speed.IsSpecified;
 
+		private Param<bool> isReversed;
+		public bool IsReversed
+        {
+            readonly get => isReversed.Value; 
+			set => isReversed.Value = value;
+        }
+		public readonly bool HasIsReversed => isReversed.IsSpecified;
 
+		//private Param<int> overrideSequenceLength;
+		//public int OverrideSequenceLength
+  //      {
+  //          readonly get => overrideSequenceLength.Value; 
+		//	set => overrideSequenceLength.Value = value;
+  //      }
+		//public readonly bool HasOverrideSequenceLength => overrideSequenceLength.IsSpecified;
 
 
         internal struct Param<T>
@@ -264,7 +282,4 @@ namespace Bipolar.SpritesetAnimation
 			public bool IsSpecified { get; private set; }
 		}
 	}
-
-
-
 }
