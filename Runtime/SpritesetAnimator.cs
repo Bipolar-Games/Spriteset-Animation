@@ -141,6 +141,8 @@ namespace Bipolar.SpritesetAnimation
 #endif
 		private float animationTimer;
 
+		public bool IsPlayingAnimationOnce { get; private set; }	
+
 		private void Reset()
 		{
 			spriteRenderer = GetComponent<SpriteRenderer>();
@@ -152,10 +154,17 @@ namespace Bipolar.SpritesetAnimation
             spriteRenderer = GetComponent<SpriteRenderer>();
         }
 
+        private void OnEnable()
+        {
+			IsPlayingAnimationOnce = false;
+        }
+
         private void Update()
 		{
-			if (isAnimating)
-				Animate(Time.deltaTime);
+			if (IsPlayingAnimationOnce)
+				return;
+
+			Animate(Time.deltaTime);
 		}
 
 		private void Animate(float timeDelta)
@@ -189,19 +198,21 @@ namespace Bipolar.SpritesetAnimation
 
 		public void PlayAnimationOnce(PlayAnimationOnceParams animationParams = default, System.Action onFinished = null)
 		{
-			isAnimating = false;
 			StopPlayingOnce();
 			StartCoroutine(PlayAnimationOnceCo(animationParams, onFinished));
 		}
 
 		public void StopPlayingOnce()
 		{
-			StopAllCoroutines();
+            StopAllCoroutines();
+            IsPlayingAnimationOnce = false;
 		}
 
 		private IEnumerator PlayAnimationOnceCo(PlayAnimationOnceParams animationParams, System.Action onFinished)
 		{
-			float speed = animationParams.HasSpeed ? animationParams.Speed : animationSpeed;
+            IsPlayingAnimationOnce = true;
+
+            float speed = animationParams.HasSpeed ? animationParams.Speed : animationSpeed;
 			int animationIndex = animationParams.HasAnimationIndex ? animationParams.AnimationIndex : currentAnimationIndex;
 			bool isReversed = animationParams.HasIsReversed ? animationParams.IsReversed : this.isReversed;
 
@@ -218,10 +229,16 @@ namespace Bipolar.SpritesetAnimation
 				yield return wait;
 			}
 			RefreshSprite(animationIndex, endingFrameIndex);
-			onFinished?.Invoke();
+            IsPlayingAnimationOnce = false;
+            onFinished?.Invoke();
 		}
 
-		private void OnValidate()
+        private void OnDisable()
+        {
+            IsPlayingAnimationOnce = false;
+        }
+
+        private void OnValidate()
 		{
 			ValidateAnimationIndex();
 			if (spriteset)
